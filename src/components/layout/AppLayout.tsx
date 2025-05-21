@@ -48,14 +48,17 @@ const AppLayout = ({ children, requiredRole = 'Any' }: AppLayoutProps) => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          <main className="flex-1 p-6 md:p-8">
-            {children}
-          </main>
-        </div>
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+          {children}
+        </main>
+        <footer className="py-4 px-6 border-t bg-background">
+          <div className="container mx-auto text-center text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Access Manager. All rights reserved.
+          </div>
+        </footer>
       </div>
     </div>
   );
