@@ -8,11 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('Employee');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -52,8 +54,8 @@ const Signup = () => {
     setIsSubmitting(true);
     
     try {
-      // Default role is 'Employee'
-      const success = await register(username, password, 'Employee' as UserRole);
+      // Pass the selected role to the register function
+      const success = await register(username, password, role);
       
       if (success) {
         toast({
@@ -126,6 +128,22 @@ const Signup = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Select Role</Label>
+                <Select 
+                  value={role} 
+                  onValueChange={(value) => setRole(value as UserRole)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Employee">Employee</SelectItem>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button 
@@ -157,3 +175,4 @@ const Signup = () => {
 };
 
 export default Signup;
+
