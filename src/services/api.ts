@@ -1,4 +1,3 @@
-
 import { Software, AccessRequest, User, AccessLevel, RequestStatus, UserRole } from '../types';
 
 // Mock data
@@ -75,15 +74,17 @@ export const softwareApi = {
     return software || null;
   },
   
-  create: async (softwareData: Omit<Software, 'id'>): Promise<Software> => {
+  create: async (newSoftware: Omit<Software, 'id'>): Promise<Software> => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    const newSoftware: Software = {
-      ...softwareData,
-      id: Math.max(0, ...softwareData.map(s => s.id)) + 1
+    const newId = Math.max(0, ...softwareData.map(s => s.id)) + 1;
+    
+    const createdSoftware: Software = {
+      ...newSoftware,
+      id: newId
     };
     
-    softwareData.push(newSoftware);
-    return newSoftware;
+    softwareData.push(createdSoftware);
+    return createdSoftware;
   }
 };
 
