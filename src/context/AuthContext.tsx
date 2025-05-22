@@ -56,6 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Note: In a real app with Supabase, you would use Supabase Auth directly
       // This is just a simplified implementation for demo purposes
       try {
+        // Check if supabase is properly configured
+        if (!supabase || !supabase.from) {
+          console.warn('Supabase client is not properly configured, falling back to mock API');
+          throw new Error('Supabase not configured');
+        }
+
         const { data, error } = await supabase
           .from('users')
           .select('*')
