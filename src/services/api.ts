@@ -1,6 +1,5 @@
-
 import { Software, AccessRequest, User, AccessLevel, RequestStatus, UserRole } from '../types';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 // TODO: Replace this mock data with PostgreSQL database tables using TypeORM entities
 // Example TypeORM entity for Software:
@@ -86,6 +85,10 @@ let usersData: User[] = [
 // Helper function to get user by ID
 const getUserById = async (id: number): Promise<User | undefined> => {
   try {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase not configured');
+    }
+
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -103,6 +106,10 @@ const getUserById = async (id: number): Promise<User | undefined> => {
 // Helper function to get software by ID
 const getSoftwareById = async (id: number): Promise<Software | undefined> => {
   try {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase not configured');
+    }
+
     const { data, error } = await supabase
       .from('software')
       .select('*')
@@ -126,6 +133,10 @@ export const softwareApi = {
   // Example: return this.softwareRepository.find();
   getAll: async (): Promise<Software[]> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('software')
         .select('*');
@@ -150,6 +161,10 @@ export const softwareApi = {
   // Example: return this.softwareRepository.findOne({ where: { id } });
   getById: async (id: number): Promise<Software | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('software')
         .select('*')
@@ -178,6 +193,10 @@ export const softwareApi = {
   // return this.softwareRepository.save(newSoftware);
   create: async (newSoftware: Omit<Software, 'id'>): Promise<Software> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('software')
         .insert({
@@ -217,6 +236,10 @@ export const softwareApi = {
   // return this.softwareRepository.findOne({ where: { id } });
   update: async (id: number, updatedSoftware: Partial<Software>): Promise<Software | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('software')
         .update({
@@ -256,6 +279,10 @@ export const softwareApi = {
   // Fixed delete method to avoid reassigning to const variable
   delete: async (id: number): Promise<boolean> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { error } = await supabase
         .from('software')
         .delete()
@@ -286,6 +313,10 @@ export const requestApi = {
   // Example: return this.requestRepository.find({ relations: ['user', 'software'] });
   getAll: async (): Promise<AccessRequest[]> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('access_requests')
         .select('*');
@@ -338,6 +369,10 @@ export const requestApi = {
   // });
   getByUser: async (userId: number): Promise<AccessRequest[]> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('access_requests')
         .select('*')
@@ -392,6 +427,10 @@ export const requestApi = {
   // return this.requestRepository.save(newRequest);
   create: async (requestData: Omit<AccessRequest, 'id' | 'status' | 'createdAt'>): Promise<AccessRequest> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('access_requests')
         .insert({
@@ -447,6 +486,10 @@ export const requestApi = {
   // });
   updateStatus: async (requestId: number, status: RequestStatus): Promise<AccessRequest | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('access_requests')
         .update({ status })
@@ -498,6 +541,10 @@ export const userApi = {
   // Example: return this.userRepository.find();
   getAll: async (): Promise<User[]> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('users')
         .select('*');
@@ -521,6 +568,10 @@ export const userApi = {
   // Example: return this.userRepository.findOne({ where: { id } });
   getById: async (id: number): Promise<User | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -548,6 +599,10 @@ export const userApi = {
   // return this.userRepository.save(newUser);
   create: async (userData: Omit<User, 'id'>): Promise<User> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('users')
         .insert({
@@ -584,6 +639,10 @@ export const userApi = {
   // return this.userRepository.findOne({ where: { id } });
   update: async (id: number, updatedUserData: Partial<User>): Promise<User | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { data, error } = await supabase
         .from('users')
         .update({
@@ -621,6 +680,10 @@ export const userApi = {
   // Fixed delete method to avoid reassigning to const variable
   delete: async (id: number): Promise<boolean> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       const { error } = await supabase
         .from('users')
         .delete()
@@ -651,6 +714,10 @@ export const userApi = {
   // return user && await bcrypt.compare(password, user.passwordHash);
   validateCredentials: async (username: string, password: string): Promise<User | null> => {
     try {
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured');
+      }
+
       // Note: In a real Supabase implementation, you would use Supabase Auth
       // This is a simplified implementation for demo purposes
       const { data, error } = await supabase

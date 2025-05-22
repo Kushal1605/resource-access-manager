@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, UserRole } from '../types';
 import { userApi } from '../services/api';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 // TODO: Replace with actual TypeORM and PostgreSQL backend
 // Example AuthService with TypeORM:
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // This is just a simplified implementation for demo purposes
       try {
         // Check if supabase is properly configured
-        if (!supabase || !supabase.from) {
+        if (!isSupabaseConfigured()) {
           console.warn('Supabase client is not properly configured, falling back to mock API');
           throw new Error('Supabase not configured');
         }
@@ -119,6 +119,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Try to use Supabase, fall back to mock API if not available
       // Note: In a real app with Supabase, you would use Supabase Auth directly
       try {
+        if (!isSupabaseConfigured()) {
+          console.warn('Supabase client is not properly configured, falling back to mock API');
+          throw new Error('Supabase not configured');
+        }
+
         // Check if user exists
         const { data: existingUser, error: checkError } = await supabase
           .from('users')

@@ -7,3 +7,16 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-u
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+// Helper function to check if Supabase is properly configured
+export const isSupabaseConfigured = () => {
+  try {
+    return supabase && 
+      typeof supabase.from === 'function' && 
+      supabaseUrl !== 'https://your-project-url.supabase.co' && 
+      supabaseAnonKey !== 'your-anon-key';
+  } catch (error) {
+    console.error('Error checking Supabase configuration:', error);
+    return false;
+  }
+};
