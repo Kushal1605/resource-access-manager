@@ -61,8 +61,8 @@ let requestsData: AccessRequest[] = [
   }
 ];
 
-// Mock users data
-const usersData: User[] = [
+// Changed from const to let to allow modifications
+let usersData: User[] = [
   { id: 1, username: 'employee', role: 'Employee' },
   { id: 2, username: 'manager', role: 'Manager' },
   { id: 3, username: 'admin', role: 'Admin' }
@@ -143,13 +143,16 @@ export const softwareApi = {
     return softwareData[index];
   },
   
-  // TODO: Replace with TypeORM repository method
-  // Example: await this.softwareRepository.delete(id);
+  // Fixed delete method to avoid reassigning to const variable
   delete: async (id: number): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 400));
     
     const initialLength = softwareData.length;
-    softwareData = softwareData.filter(s => s.id !== id);
+    // Modified to use splice instead of reassignment
+    const index = softwareData.findIndex(s => s.id === id);
+    if (index !== -1) {
+      softwareData.splice(index, 1);
+    }
     
     return softwareData.length < initialLength;
   }
@@ -289,13 +292,16 @@ export const userApi = {
     return usersData[index];
   },
   
-  // TODO: Replace with TypeORM repository method
-  // Example: await this.userRepository.delete(id);
+  // Fixed delete method to avoid reassigning to const variable
   delete: async (id: number): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 400));
     
     const initialLength = usersData.length;
-    usersData = usersData.filter(u => u.id !== id);
+    // Modified to use splice instead of filter + reassignment
+    const index = usersData.findIndex(u => u.id !== id);
+    if (index !== -1) {
+      usersData.splice(index, 1);
+    }
     
     return usersData.length < initialLength;
   },
@@ -401,4 +407,3 @@ export class AccessRequestEntity {
   createdAt: Date;
 }
 */
-
