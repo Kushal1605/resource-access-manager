@@ -597,17 +597,21 @@ export const userApi = {
   // TODO: Replace with TypeORM repository method
   // Example: const newUser = this.userRepository.create(userData);
   // return this.userRepository.save(newUser);
-  create: async (userData: Omit<User, 'id'>): Promise<User> => {
+  create: async (userData: Omit<User, 'id'> & { password?: string }): Promise<User> => {
     try {
       if (!isSupabaseConfigured()) {
         throw new Error('Supabase not configured');
       }
 
+      // Extract password from userData
+      const { password, ...userDataWithoutPassword } = userData;
+      
       const { data, error } = await supabase
         .from('users')
         .insert({
-          username: userData.username,
-          role: userData.role
+          username: userDataWithoutPassword.username,
+          role: userDataWithoutPassword.role,
+          password: password, // In a real app, you would never store plain text passwords
         })
         .select()
         .single();
@@ -629,7 +633,15 @@ export const userApi = {
         id: Math.max(0, ...usersData.map(u => u.id)) + 1
       };
       
-      usersData.push(newUser);
+      // Store the password in the mock data (for demo only)
+      const mockUserWithPassword = {
+        ...newUser,
+        password: userData.password
+      };
+      
+      // @ts-ignore - Adding password for mock data
+      usersData.push(mockUserWithPassword);
+      
       return newUser;
     }
   },
@@ -728,9 +740,19 @@ export const userApi = {
         
       if (error) throw error;
       
+      // Check if we have a registered user with matching password
+      // In a real app, you would never store plain text passwords
+      if (data && password === data.password) {
+        return {
+          id: data.id,
+          username: data.username,
+          role: data.role as UserRole
+        };
+      }
+      
       // This is ONLY for demo purposes - in a real app, never store passwords in plain text
-      // In a real implementation, you would use Supabase Auth instead
-      if (data && password === 'password') {
+      // or handle authentication this way - hard-coded passwords for demo users
+      if (['employee', 'manager', 'admin'].includes(username) && password === 'password') {
         return {
           id: data.id,
           username: data.username,
@@ -749,7 +771,8 @@ export const userApi = {
       const mockUsers = [
         { id: 1, username: 'employee', password: 'password', role: 'Employee' as UserRole },
         { id: 2, username: 'manager', password: 'password', role: 'Manager' as UserRole },
-        { id: 3, username: 'admin', password: 'password', role: 'Admin' as UserRole }
+        { id: 3, username: 'admin', password: 'password', role: 'Admin' as UserRole },
+        { id: 4, username: '2101640100151', password: '12345678', role: 'Manager' as UserRole }, // Add your user here
       ];
       
       const foundUser = mockUsers.find(u => 

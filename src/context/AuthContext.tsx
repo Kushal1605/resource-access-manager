@@ -62,19 +62,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error('Supabase not configured');
         }
 
+        // For demonstration purposes, we'll check if the user exists in the 'users' table
+        // and validate with the provided password
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('username', username)
           .single();
           
-        if (error) throw error;
+        if (error) {
+          console.log('Supabase query error:', error);
+          throw error;
+        }
         
-        if (data && password === 'password') {  // Simplified auth for demo
+        // In a real app, you would never store plain text passwords
+        // This is just for demonstration purposes
+        // The mock system allows any password for the demo users
+        if (data) {
+          // For demo accounts (employee, manager, admin), accept "password" as the password
+          if (['employee', 'manager', 'admin'].includes(data.username) && password === 'password') {
+            const validatedUser = {
+              id: data.id,
+              username: data.username,
+              role: data.role as UserRole
+            };
+            
+            setUser(validatedUser);
+            localStorage.setItem('user', JSON.stringify(validatedUser));
+            return true;
+          }
+          
+          // For all other users, just accept any password in this demo
+          // In a real app, you would use proper password hashing and comparison
+          // Check if the entered password matches what we have (simple equality for demo)
+          if (password === data.password) {
+            const validatedUser = {
+              id: data.id,
+              username: data.username,
+              role: data.role as UserRole
+            };
+            
+            setUser(validatedUser);
+            localStorage.setItem('user', JSON.stringify(validatedUser));
+            return true;
+          }
+        }
+        
+        console.log('Invalid credentials for user:', username);
+        throw new Error('Invalid credentials');
+      } catch (supabaseError) {
+        console.log('Supabase auth failed, using mock auth:', supabaseError);
+        
+        // Fall back to mock API if Supabase is not available
+        // Check if the user is one of our hard-coded users
+        const demoUsers = [
+          { username: 'employee', password: 'password', role: 'Employee' as UserRole },
+          { username: 'manager', password: 'password', role: 'Manager' as UserRole },
+          { username: 'admin', password: 'password', role: 'Admin' as UserRole },
+          { username: '2101640100151', password: '12345678', role: 'Manager' as UserRole }, // Add your user here for mock data
+        ];
+        
+        const mockUser = demoUsers.find(
+          user => user.username === username && user.password === password
+        );
+        
+        if (mockUser) {
           const validatedUser = {
-            id: data.id,
-            username: data.username,
-            role: data.role as UserRole
+            id: demoUsers.indexOf(mockUser) + 1,
+            username: mockUser.username,
+            role: mockUser.role
           };
           
           setUser(validatedUser);
@@ -82,11 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return true;
         }
         
-        throw new Error('Invalid credentials');
-      } catch (supabaseError) {
-        console.log('Supabase auth failed, using mock auth:', supabaseError);
-        
-        // Fall back to mock API if Supabase is not available
+        // Try the mock API as a last resort
         const validatedUser = await userApi.validateCredentials(username, password);
         
         if (!validatedUser) {
@@ -135,13 +187,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error('Username already exists');
         }
         
-        // Create new user
+        // Create new user - in a real app, you would never store passwords in plain text
+        // This is just for demonstration purposes
         const { data, error } = await supabase
           .from('users')
           .insert({
             username,
             role,
-            // In a real app, you would use Supabase Auth and not store passwords
+            password, // For demo only - in real app use Supabase Auth
           })
           .select()
           .single();
@@ -164,7 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Fall back to mock API if Supabase is not available
         const newUser = await userApi.create({
           username,
-          role
+          role,
+          password, // Adding password for mock API
         });
         
         // Save user to state and localStorage
