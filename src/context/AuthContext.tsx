@@ -2,6 +2,26 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, UserRole } from '../types';
+import { userApi } from '../services/api';
+
+// TODO: Replace with actual TypeORM and PostgreSQL backend
+// Example AuthService with TypeORM:
+// @Injectable()
+// export class AuthService {
+//   constructor(
+//     @InjectRepository(UserEntity)
+//     private userRepository: Repository<UserEntity>,
+//   ) {}
+//
+//   async validateUser(username: string, password: string): Promise<any> {
+//     const user = await this.userRepository.findOne({ where: { username } });
+//     if (user && await bcrypt.compare(password, user.password)) {
+//       const { password, ...result } = user;
+//       return result;
+//     }
+//     return null;
+//   }
+// }
 
 interface AuthContextType {
   user: User | null;
@@ -27,37 +47,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  // Mock authentication functions
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      // In a real app, this would be a call to your backend
       
-      // Simple mock for demo purposes
-      if (!username || !password) {
-        throw new Error('Username and password are required');
-      }
+      // TODO: Replace with actual backend authentication
+      // In the future, this would be a JWT-based authentication using PostgreSQL and TypeORM
+      // const response = await fetch('/api/auth/login', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username, password })
+      // });
+      // const data = await response.json();
       
-      // Hardcoded users for demo
-      const users = [
-        { id: 1, username: 'employee', role: 'Employee' as UserRole, password: 'password' },
-        { id: 2, username: 'manager', role: 'Manager' as UserRole, password: 'password' },
-        { id: 3, username: 'admin', role: 'Admin' as UserRole, password: 'password' }
-      ];
+      const validatedUser = await userApi.validateCredentials(username, password);
       
-      const foundUser = users.find(u => 
-        u.username.toLowerCase() === username.toLowerCase() && u.password === password
-      );
-      
-      if (!foundUser) {
+      if (!validatedUser) {
         throw new Error('Invalid credentials');
       }
       
-      const { password: _, ...userWithoutPassword } = foundUser;
-      
       // Save user to state and localStorage
-      setUser(userWithoutPassword);
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      setUser(validatedUser);
+      localStorage.setItem('user', JSON.stringify(validatedUser));
       
       return true;
     } catch (error) {
@@ -71,22 +82,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (username: string, password: string, role: UserRole = 'Employee'): Promise<boolean> => {
     try {
       setIsLoading(true);
-      // In a real app, this would be a call to your backend
+      
+      // TODO: Replace with actual backend registration using PostgreSQL and TypeORM
+      // Example:
+      // const hashedPassword = await bcrypt.hash(password, 10);
+      // const newUser = this.userRepository.create({
+      //   username,
+      //   passwordHash: hashedPassword,
+      //   role
+      // });
+      // await this.userRepository.save(newUser);
       
       // Simple validation
       if (!username || !password) {
         throw new Error('Username and password are required');
       }
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Create a new user (this would be done by the backend)
-      const newUser = {
-        id: Math.floor(Math.random() * 1000),
+      // Create a new user
+      const newUser = await userApi.create({
         username,
         role
-      };
+      });
       
       // Save user to state and localStorage
       setUser(newUser);
@@ -102,6 +118,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    // TODO: In a real JWT system, you might want to invalidate the token on the server
+    // Example:
+    // await fetch('/api/auth/logout', {
+    //   method: 'POST',
+    //   headers: { Authorization: `Bearer ${token}` }
+    // });
+    
     setUser(null);
     localStorage.removeItem('user');
     navigate('/login');
